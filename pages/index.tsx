@@ -1,4 +1,16 @@
-import { Box, Container, TextField } from "@material-ui/core";
+import {
+  Avatar,
+  Box,
+  Container,
+  Divider,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import Head from "next/head";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -71,13 +83,45 @@ export default function Home() {
       <Box display="flex" justifyContent="center">
         <TextField
           value={textfield}
-          onChange={(e) => setTextfield(e.target.value)}
+          onChange={(e) => e.target.value.length <= 10 && setTextfield(e.target.value)}
           label="KRS"
         />
       </Box>
-      {q.map((subq, i) => (
-        <div key={i}>{JSON.stringify(subq.data)}</div>
-      ))}
+      <List>
+        {q.map((subq, i) => {
+          const lastStatus = (subq.data as any)?.cases?.[(subq.data as any).cases?.length - 1]?.status;
+
+          return (
+            <>
+              <ListItem key={ids[i]} alignItems="flex-start">
+                <ListItemText
+                  primary={<>{textfield || ids[i]} {lastStatus && <Typography component="span" color="primary"> - {lastStatus}</Typography>}</>}
+                  secondary={subq.isLoading ? (
+                    <LinearProgress />
+                  ) : (
+                    <div style={{ marginLeft: "16px" }}>
+                      {(subq.data as any)?.cases.length
+                        ? (subq.data as any)?.cases.map((c) => (
+                          <div>
+                            {`${c.startDate || "??"} - ${c.endDate || "??"} | `}
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              color="textPrimary"
+                            >
+                              {c.status}
+                            </Typography>
+                          </div>
+                        ))
+                        : "No records"}
+                    </div>
+                  )} />
+              </ListItem>
+              <Divider variant="inset" component="li" />
+            </>
+          );
+        })}
+      </List>
     </Container>
   );
 }
