@@ -84,7 +84,9 @@ export default function Home() {
         <title>KRS Status</title>
       </Head>
       <Container style={{ marginTop: "64px" }}>
-        <Box display="flex" justifyContent="center">
+        <Box display="flex" flexDirection="column" alignItems="center">
+
+          <Typography component="p" variant="body2" color="textSecondary">Enter the KRS number or drop a .txt file with one number on every line</Typography>
           <TextField
             value={textfield}
             onChange={(e) =>
