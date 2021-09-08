@@ -79,49 +79,73 @@ export default function Home() {
   );
 
   return (
-    <Container style={{ marginTop: "64px" }}>
-      <Box display="flex" justifyContent="center">
-        <TextField
-          value={textfield}
-          onChange={(e) => e.target.value.length <= 10 && setTextfield(e.target.value)}
-          label="KRS"
-        />
-      </Box>
-      <List>
-        {q.map((subq, i) => {
-          const lastStatus = (subq.data as any)?.cases?.[(subq.data as any).cases?.length - 1]?.status;
+    <>
+      <Head>
+        <title>KRS Status</title>
+      </Head>
+      <Container style={{ marginTop: "64px" }}>
+        <Box display="flex" justifyContent="center">
+          <TextField
+            value={textfield}
+            onChange={(e) =>
+              e.target.value.length <= 10 && setTextfield(e.target.value)
+            }
+            label="KRS"
+          />
+        </Box>
+        <List>
+          {q.map((subq, i) => {
+            const lastStatus = (subq.data as any)?.cases?.[
+              (subq.data as any).cases?.length - 1
+            ]?.status;
 
-          return (
-            <>
-              <ListItem key={ids[i]} alignItems="flex-start">
-                <ListItemText
-                  primary={<>{textfield || ids[i]} {lastStatus && <Typography component="span" color="primary"> - {lastStatus}</Typography>}</>}
-                  secondary={subq.isLoading ? (
-                    <LinearProgress />
-                  ) : (
-                    <div style={{ marginLeft: "16px" }}>
-                      {(subq.data as any)?.cases.length
-                        ? (subq.data as any)?.cases.map((c) => (
-                          <div>
-                            {`${c.startDate || "??"} - ${c.endDate || "??"} | `}
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              color="textPrimary"
-                            >
-                              {c.status}
-                            </Typography>
-                          </div>
-                        ))
-                        : "No records"}
-                    </div>
-                  )} />
-              </ListItem>
-              <Divider variant="inset" component="li" />
-            </>
-          );
-        })}
-      </List>
-    </Container>
+            return (
+              <>
+                <ListItem key={ids[i]} alignItems="flex-start">
+                  <ListItemText
+                    primary={
+                      <>
+                        {textfield || ids[i]}{" "}
+                        {lastStatus && (
+                          <Typography component="span" color="primary">
+                            {" "}
+                            - {lastStatus}
+                          </Typography>
+                        )}
+                      </>
+                    }
+                    secondary={
+                      subq.isLoading ? (
+                        <LinearProgress />
+                      ) : (
+                        <div style={{ marginLeft: "16px" }}>
+                          {(subq.data as any)?.cases.length
+                            ? (subq.data as any)?.cases.map((c) => (
+                                <div>
+                                  {`${c.startDate || "??"} - ${
+                                    c.endDate || "??"
+                                  } | `}
+                                  <Typography
+                                    component="span"
+                                    variant="body2"
+                                    color="textPrimary"
+                                  >
+                                    {c.status}
+                                  </Typography>
+                                </div>
+                              ))
+                            : "No records"}
+                        </div>
+                      )
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" />
+              </>
+            );
+          })}
+        </List>
+      </Container>
+    </>
   );
 }
