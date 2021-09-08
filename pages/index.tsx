@@ -19,6 +19,8 @@ import styles from "../styles/Home.module.css";
 
 const fetchStatus = async (krsNum: string) =>
   fetch(`/api/krs-status?id=${krsNum}`).then((resp) => resp.json());
+const fetchDetails = async (krsNum: string) =>
+  fetch(`/api/krs-name?id=${krsNum}`).then((resp) => resp.json());
 
 export default function Home() {
   const [textfield, setTextfield] = useState("");
@@ -62,7 +64,7 @@ export default function Home() {
     return () => window.removeEventListener("drop", listener);
   }, []);
 
-  const q = useQueries(
+  const caseQueries = useQueries(
     /^\d{10}$/.test(textfield)
       ? [
           {
@@ -78,6 +80,22 @@ export default function Home() {
         }))
   );
 
+  const detailQueries = useQueries(
+    /^\d{10}$/.test(textfield)
+      ? [
+          {
+            queryKey: ["krs-name", textfield],
+            queryFn: async () => await fetchDetails(textfield),
+            refetchOnWindowFocus: false,
+          },
+        ]
+      : ids.map((id) => ({
+          queryKey: ["krs-name", id],
+          queryFn: async () => await fetchDetails(id),
+          refetchOnWindowFocus: false,
+        }))
+  );
+
   return (
     <>
       <Head>
@@ -85,8 +103,10 @@ export default function Home() {
       </Head>
       <Container style={{ marginTop: "64px" }}>
         <Box display="flex" flexDirection="column" alignItems="center">
-
-          <Typography component="p" variant="body2" color="textSecondary">Enter the KRS number or drop a .txt file with one number on every line</Typography>
+          <Typography component="p" variant="body2" color="textSecondary">
+            Enter the KRS number or drop a .txt file with one number on every
+            line
+          </Typography>
           <TextField
             value={textfield}
             onChange={(e) =>
@@ -96,10 +116,12 @@ export default function Home() {
           />
         </Box>
         <List>
-          {q.map((subq, i) => {
+          {caseQueries.map((subq, i) => {
             const lastStatus = (subq.data as any)?.cases?.[
               (subq.data as any).cases?.length - 1
             ]?.status;
+
+            const name = (detailQueries[i]?.data as any)?.name || "??";
 
             return (
               <>
@@ -107,10 +129,14 @@ export default function Home() {
                   <ListItemText
                     primary={
                       <>
-                        {textfield || ids[i]}{" "}
+                        <Typography component="span" color="textSecondary">
+                          {textfield || ids[i]}
+                          {" | "}
+                          
+                        </Typography>
+                        {name}{" "}
                         {lastStatus && (
                           <Typography component="span" color="primary">
-                            {" "}
                             - {lastStatus}
                           </Typography>
                         )}
@@ -127,10 +153,19 @@ export default function Home() {
                                   {`${c.startDate || "??"} - ${
                                     c.endDate || "??"
                                   } | `}
+
                                   <Typography
                                     component="span"
                                     variant="body2"
                                     color="textPrimary"
+                                  >
+                                    {c.caseReference}
+                                  </Typography>
+                                  {" | "}
+                                  <Typography
+                                    component="span"
+                                    variant="body2"
+                                    color="primary"
                                   >
                                     {c.status}
                                   </Typography>
